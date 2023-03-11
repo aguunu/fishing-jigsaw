@@ -11,18 +11,22 @@ class Node {
    public:
     Node(Jigsaw* state, Node* parent = nullptr);
     ~Node();
-    f64 ucb(const f64 c) const;
+    f32 ucb(const f32 c) const;
     bool is_fully_expanded() const;
+    bool is_terminal() const;
     void backpropagation(const u8 score);
+    u8 best_action(f32 c) const;
+    u8 get_depth() const;
     std::unordered_map<u8, Node*> children;
     Jigsaw* state;
     std::vector<u8> unexplored_actions;
-    u8 best_action(f64 c) const;
-
+    
    private:
     u32 score;
     u32 visits;
     Node* parent;
+    bool is_terminal_state;
+    u8 depth;
 };
 
 #endif

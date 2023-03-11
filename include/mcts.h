@@ -9,9 +9,9 @@
 
 class MCTS {
    public:
-    MCTS(u32 iters, u8 max_depth, f64 c);
+    MCTS(u32 iters, u8 max_depth, f32 c);
     u8 search(const Jigsaw& initial_state);
-    Node* select(Node* node, f64 c) const;
+    Node* select(Node* node, f32 c) const;
     Node* expand(Node* node) const;
     u8 rollout(Node* node) const;
 
@@ -19,7 +19,7 @@ class MCTS {
     Node* root;
     u32 iters;
     u8 max_depth;
-    f64 c;
+    f32 c;
 };
 
 #endif

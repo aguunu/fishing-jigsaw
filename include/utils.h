@@ -5,6 +5,6 @@
 
 typedef uint_fast8_t u8;
 typedef uint_fast32_t u32;
-typedef double f64;
+typedef float f32;
 
 #endif

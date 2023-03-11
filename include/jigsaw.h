@@ -17,8 +17,6 @@ class Jigsaw {
     bool is_legal(const u8 action) const;
     const std::vector<u8> legal_actions() const;
     u8 rollout_policy(u8 max_depth) const;
-    bool is_terminal(u8 max_depth) const;
-    u8 get_depth() const;
     void render() const;
 
    private:
@@ -26,7 +24,6 @@ class Jigsaw {
     u8 figure_index;
     u8 round;
     u8 agent;
-    u8 depth;
 
     static const u8 ROWS;
     static const u8 COLS;

@@ -4,7 +4,7 @@
 
 #include <iostream>
 
-MCTS::MCTS(u32 iters, u8 max_depth, f64 c) {
+MCTS::MCTS(u32 iters, u8 max_depth, f32 c) {
     srand((unsigned)time(nullptr));
 
     this->iters = iters;
@@ -20,6 +20,12 @@ u8 MCTS::search(const Jigsaw& initial_state) {
         /* Selection phase */
         Node* node = this->select(this->root, this->c);
 
+        if (node->is_terminal()) {
+            u8 score = node->ucb(0.0);
+            node->backpropagation(score);
+            continue;
+        }
+
         /* Expansion phase */
         node = this->expand(node);
 
@@ -30,15 +36,15 @@ u8 MCTS::search(const Jigsaw& initial_state) {
         node->backpropagation(score);
     }
 
-    u8 best_action = this->root->best_action(0);
+    u8 best_action = this->root->best_action(0.0);
 
     delete this->root;
 
     return best_action;
 }
 
-Node* MCTS::select(Node* node, f64 c) const {
-    if (!node->is_fully_expanded()) {
+Node* MCTS::select(Node* node, f32 c) const {
+    if (!node->is_fully_expanded() || node->is_terminal()) {
         return node;
     }
 
@@ -67,6 +73,6 @@ Node* MCTS::expand(Node* node) const {
 }
 
 u8 MCTS::rollout(Node* node) const {
-    u8 max_depth = this->root->state->get_depth() + this->max_depth;
+    u8 max_depth = this->max_depth - node->get_depth();
     return node->state->rollout_policy(max_depth);
 }

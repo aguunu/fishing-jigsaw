@@ -9,6 +9,8 @@ Node::Node(Jigsaw* state, Node* parent) {
     this->score = 0;
     this->visits = 0;
     this->unexplored_actions = state->legal_actions();
+    this->is_terminal_state = state->has_finished();
+    this->depth = parent ? parent->get_depth() + 1 : 0;
 }
 
 Node::~Node() {
@@ -21,14 +23,14 @@ Node::~Node() {
     this->children.clear();
 }
 
-f64 Node::ucb(const f64 c) const {
-    f64 exploitation = (f64)this->score / (f64)this->visits;
+f32 Node::ucb(const f32 c) const {
+    f32 exploitation = (f32)this->score / (f32)this->visits;
 
     if (!this->parent) {
         return exploitation;
     }
 
-    f64 exploration = c * sqrtf64(2 * log(this->parent->visits) / this->visits);
+    f32 exploration = c * sqrtf32(2 * log(this->parent->visits) / this->visits);
     return exploitation + exploration;
 }
 
@@ -36,14 +38,16 @@ bool Node::is_fully_expanded() const {
     return this->unexplored_actions.empty();
 }
 
-u8 Node::best_action(f64 c) const {
+bool Node::is_terminal() const { return this->is_terminal_state; }
+
+u8 Node::best_action(f32 c) const {
     assert(!this->children.empty());
 
     u8 best_action = this->children.begin()->first;
-    f64 best_ucb = this->children.at(best_action)->ucb(c);
+    f32 best_ucb = this->children.at(best_action)->ucb(c);
 
     for (auto const& it : this->children) {
-        f64 ucb = it.second->ucb(c);
+        f32 ucb = it.second->ucb(c);
         if (best_ucb < ucb) {
             best_action = it.first;
             best_ucb = ucb;
@@ -60,3 +64,5 @@ void Node::backpropagation(const u8 score) {
         this->parent->backpropagation(score);
     }
 }
+
+u8 Node::get_depth() const { return this->depth; }

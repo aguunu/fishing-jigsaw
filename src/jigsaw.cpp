@@ -21,7 +21,6 @@ enum Player { MACHINE, HUMAN };
 Jigsaw::Jigsaw() {
     this->board = 0;
     this->round = 0;
-    this->depth = 0;
     this->agent = MACHINE;
     this->figure_index = INVALID_FIGURE_INDEX;
 }
@@ -30,13 +29,10 @@ Jigsaw::Jigsaw(const Jigsaw& game) {
     this->board = game.board;
     this->figure_index = game.figure_index;
     this->round = game.round;
-    this->depth = game.depth;
     this->agent = game.agent;
 }
 
 u8 Jigsaw::get_round() const { return this->round; }
-
-u8 Jigsaw::get_depth() const { return this->depth; }
 
 void Jigsaw::set_figure_index(const u8 figure_index) {
     this->figure_index = figure_index;
@@ -60,7 +56,6 @@ void Jigsaw::perform_action(const u8 action) {
     }
 
     this->agent = (this->agent == MACHINE) ? HUMAN : MACHINE;
-    this->depth += 1;
 }
 
 bool Jigsaw::is_legal(const u8 action) const {
@@ -108,13 +103,15 @@ const std::vector<u8> Jigsaw::legal_actions() const {
 u8 Jigsaw::rollout_policy(u8 max_depth) const {
     Jigsaw game = Jigsaw(*this);
 
+    u8 current_depth = 0;
     while (!game.has_finished()) {
         std::vector<u8> legal_actions = game.legal_actions();
         u8 action_index = rand() % legal_actions.size();
         u8 action = legal_actions.at(action_index);
         game.perform_action(action);
 
-        if (game.depth > max_depth) {
+        current_depth += 1;
+        if (current_depth > max_depth) {
             return 0;
         }
     }
