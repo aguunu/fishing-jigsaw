@@ -33,27 +33,27 @@ VALGRIND_FLAGS =    --leak-check=full \
                     --log-file=$(LOGS_DIR)/$(VALGRIND_LOGS).log $(BUILD_DIR)/$(TARGET_EXEC)
 
 $(BUILD_DIR)/$(MAIN).o:$(MAIN).cpp
-    @mkdir -p $(BUILD_DIR)
-    $(CXX) $(CPPFLAGS) $(CXXFLAGS) $(LDFLAGS) -c $< -o $@
+	@mkdir -p $(BUILD_DIR)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(LDFLAGS) -c $< -o $@
 
 # $@ evaluates to the target name
 # $< evaluates to the first prerequisite 
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp $(INC_DIR)/%.h
-    $(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
 
 # $^ evaluates to all prerequisites
 $(BUILD_DIR)/$(TARGET_EXEC): $(BUILD_DIR)/$(MAIN).o $(OBJS)
-    $(CXX) $(CPPFLAGS) $(CXXFLAGS) $^ -o $@
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $^ -o $@
 
 clean:
-    @rm -rf $(BUILD_DIR)
+	@rm -rf $(BUILD_DIR)
 
 valgrind: $(BUILD_DIR)/$(TARGET_EXEC)
-    @mkdir -p $(LOGS_DIR)
-    @valgrind $(VALGRIND_FLAGS)
+	@mkdir -p $(LOGS_DIR)
+	@valgrind $(VALGRIND_FLAGS)
 
 run:
-    $(BUILD_DIR)/$(TARGET_EXEC)
+	$(BUILD_DIR)/$(TARGET_EXEC)
 
 # Include the .d makefiles. The - at the front suppresses the errors of missing
 # Makefiles. Initially, all the .d files will be missing, and we don't want those
