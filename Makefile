@@ -27,10 +27,13 @@ DEPS = $(OBJS:.o=.d)
 # These files will have .d instead of .o as the output.
 CPPFLAGS = -Wall -Werror -I$(INC_DIR) -DNDEBUG -g -MMD -MP
 
+# Count all files in LOGS_DIR that ends with .log
+VALGRIND_LOG_SUFFIX = $(words $(wildcard $(LOGS_DIR)/*.log))
+
 VALGRIND_FLAGS =    --leak-check=full \
                     --show-leak-kinds=all \
                     --track-origins=yes \
-                    --log-file=$(LOGS_DIR)/$(VALGRIND_LOGS).log $(BUILD_DIR)/$(TARGET_EXEC)
+                    --log-file=$(LOGS_DIR)/$(VALGRIND_LOGS)_$(VALGRIND_LOG_SUFFIX).log $(BUILD_DIR)/$(TARGET_EXEC)
 
 $(BUILD_DIR)/$(MAIN).o:$(MAIN).cpp
 	@mkdir -p $(BUILD_DIR)
