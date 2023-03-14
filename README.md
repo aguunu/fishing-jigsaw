@@ -2,7 +2,7 @@
 ## About The Project
 This project aims to create a software capable of compute a *promising* solution in an acceptable amount of time in order to maximize the rewards for a given state of the *Fishing Jigsaw* game.
 
-Fishing Jigsaw is a deterministic problem which is difficult/impossible to compute its best solution since in order to find it, the software would have to compute all possible states of the current board *which is very expensive*. <br>
+Fishing Jigsaw is a non-deterministic problem which is difficult/impossible to compute its best solution since in order to find it, the software would have to compute all possible states of the current board *which is very expensive*. <br>
 
 ##  Fishing Jigsaw
 - The aim of the game is to fill all the spaces of the board.
