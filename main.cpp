@@ -7,7 +7,7 @@ int main() {
     /* Provide a random seed value to take random actions */
     srand((unsigned)time(nullptr));
 
-    MCTS mcts = MCTS(100'000, 15, 1.0);
+    MCTS mcts = MCTS(300'000, 15, 1.0);
 
     /* Create Environment instance */
     Jigsaw game = Jigsaw();

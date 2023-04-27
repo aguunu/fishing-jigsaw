@@ -25,7 +25,7 @@ DEPS = $(OBJS:.o=.d)
 
 # The -MMD and -MP flags together generate Makefiles for us!
 # These files will have .d instead of .o as the output.
-CPPFLAGS = -Wall -Werror -I$(INC_DIR) -DNDEBUG -g -MMD -MP
+CPPFLAGS = -Wall -Werror -O3 -I$(INC_DIR) -DNDEBUG -g -MMD -MP
 
 # Count all files in LOGS_DIR that ends with .log
 VALGRIND_LOG_SUFFIX = $(words $(wildcard $(LOGS_DIR)/*.log))
