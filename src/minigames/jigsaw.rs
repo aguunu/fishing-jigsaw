@@ -19,7 +19,7 @@ pub const ALL_FIGURES: [u32; TOTAL_FIGURES as usize] = [
 pub struct Jigsaw {
     pub board: u32,
     pub figure_index: u8,
-    pub round: u8,
+    pub quantity: u8,
 }
 
 fn random_figure() -> u8 {
@@ -32,7 +32,7 @@ impl Jigsaw {
         Self {
             board: 0,
             figure_index: random_figure(),
-            round: 0,
+            quantity: 0,
         }
     }
 
@@ -83,8 +83,8 @@ impl fmt::Debug for Jigsaw {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let mut string = String::new();
 
-        let round_str = format!("========={}=========\n", self.round);
-        string.push_str(&round_str);
+        let quantity_str = format!("========={}=========\n", self.quantity);
+        string.push_str(&quantity_str);
 
         let mut board_mask: u32 = 1 << (ROWS * COLS - 1);
         let mut figure_mask: u32 = 1 << (ROWS * COLS - 1);
@@ -131,7 +131,7 @@ impl Environment for Jigsaw {
             self.board |= self.figure() >> action;
         }
 
-        self.round += 1;
+        self.quantity += 1;
 
         self.figure_index = random_figure();
     }

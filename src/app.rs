@@ -50,7 +50,7 @@ impl App {
         ui.horizontal(|ui| {
             ui.set_enabled(!self.algorithm_is_running());
 
-            if ui.button("Reset").clicked() {
+            if ui.button("New Game").clicked() {
                 /* Reset current game */
                 self.reset_stats();
                 self.game = Jigsaw::new();
@@ -107,18 +107,17 @@ impl App {
         ui.add(egui::ProgressBar::new(progress));
     }
 
-    pub fn jigsaw_window(&mut self, ui: &mut egui::Ui) {
+    pub fn jigsaw(&mut self, ui: &mut egui::Ui) {
         let cell_size = (50.0, 50.0);
 
         ui.horizontal_top(|ui| {
             ui.horizontal_wrapped(|ui| {
                 ui.spacing_mut().item_spacing = (0.0, 0.0).into();
 
-                let rows = 4;
-                let cols = 6;
+                let board_shape = (4, 6);
 
-                for row in 0..rows {
-                    for col in 0..cols {
+                for row in 0..board_shape.0 {
+                    for col in 0..board_shape.1 {
                         let (rect, response) =
                             ui.allocate_exact_size(cell_size.into(), egui::Sense::click());
 
@@ -126,36 +125,44 @@ impl App {
                             .rect_stroke(rect, 0.0, (1.0, egui::Color32::WHITE));
 
                         if self.game.coord((row, col)) {
-                            ui.painter().rect_filled(rect, 0.0, egui::Color32::RED);
+                            ui.painter().rect_filled(rect, 0.0, egui::Color32::GOLD);
                         }
 
-                        let coord = 6 * row + col;
+                        let cell_index = 6 * row + col;
 
                         if let Some(action) = self.best_action() {
-                            if (self.game.figure() >> action) & ((1 << 23) >> coord) != 0 {
+                            if (self.game.figure() >> action) & ((1 << 23) >> cell_index) != 0 {
                                 ui.painter().rect_filled(rect, 0.0, egui::Color32::GREEN);
                             }
+                        }
+
+                        if response.hovered() {
+                            ui.painter().text(
+                                rect.center(),
+                                egui::Align2::CENTER_CENTER,
+                                cell_index.to_string(),
+                                egui::FontId::default(),
+                                egui::Color32::WHITE,
+                            );
                         }
 
                         if response.clicked() {
                             self.reset_stats();
                             self.game.toggle_coord((row, col));
-                            println!("{:#?}", self.game);
+                            dbg!(&self.game);
                         }
                     }
                     ui.end_row();
                 }
             });
 
-            /* Render current figure */
             ui.horizontal_wrapped(|ui| {
                 ui.spacing_mut().item_spacing = (0.0, 0.0).into();
 
-                let rows = 3;
-                let cols = 3;
+                let figure_shape = (3, 3);
 
-                for row in 0..rows {
-                    for col in 0..cols {
+                for row in 0..figure_shape.0 {
+                    for col in 0..figure_shape.1 {
                         let (rect, _response) =
                             ui.allocate_exact_size(cell_size.into(), egui::Sense::hover());
 
@@ -173,9 +180,9 @@ impl App {
 
             ui.vertical(|ui| {
                 ui.horizontal(|ui| {
-                    let round_label = ui.label("Round:");
-                    ui.add(egui::DragValue::new(&mut self.game.round).clamp_range(0..=16))
-                        .labelled_by(round_label.id);
+                    let quantity_label = ui.label("Quantity");
+                    ui.add(egui::DragValue::new(&mut self.game.quantity).clamp_range(0..=16))
+                        .labelled_by(quantity_label.id);
                 });
 
                 for index in 0..ALL_FIGURES.len() {
@@ -210,11 +217,11 @@ impl App {
                     .on_hover_text("Algorithm iterations.");
                 ui.add(egui::Slider::new(
                     &mut self.algorithm_config.max_iters,
-                    1..=800_000,
+                    10_000..=800_000,
                 ));
                 ui.end_row();
 
-                // callback update
+                // callback update interval
                 ui.label("Update Interval").on_hover_text(format!(
                     "Update stats every {} iterations.",
                     self.algorithm_config.callback_interval
@@ -260,7 +267,7 @@ impl App {
 
                 for (action, data) in history.iter() {
                     plot_ui.line(egui::plot::Line::new(data.clone()).name(format!("#{}", action)));
-                    // is neccesary to clone the points ?
+                    // is necessary to clone the points ?
                 }
             });
     }
@@ -290,9 +297,6 @@ impl eframe::App for App {
             self.game = Jigsaw::new();
         }
 
-        /*
-            Left Side Panel
-        */
         egui::SidePanel::left("left-panel")
             .resizable(false)
             .show(ctx, |ui| {
@@ -324,7 +328,7 @@ impl eframe::App for App {
         egui::CentralPanel::default().show(ctx, |_ui| {
             egui::Window::new("🎣 Jigsaw")
                 .resizable(false)
-                .show(ctx, |ui| self.jigsaw_window(ui));
+                .show(ctx, |ui| self.jigsaw(ui));
         });
     }
 }

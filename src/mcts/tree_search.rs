@@ -133,7 +133,7 @@ impl<T: Environment + Clone> Tree<T> {
             .iter()
             .all(|action| node.children.contains_key(action));
 
-        /* Check if state is not fully expanden or is terminal */
+        /* Check if state is not fully expanded */
         if !fully_expanded {
             return index;
         }
