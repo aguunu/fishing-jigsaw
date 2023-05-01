@@ -1,5 +1,10 @@
+mod app;
+mod jigsaw_manager;
 mod mcts;
 mod minigames;
-
-mod app;
+mod stats_manager;
+mod window;
 pub use app::App;
+pub use jigsaw_manager::JigsawManager;
+pub use stats_manager::StatsManager;
+pub use window::CustomWindow;

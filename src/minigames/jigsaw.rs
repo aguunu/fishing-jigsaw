@@ -37,14 +37,22 @@ impl Jigsaw {
         }
     }
 
-    pub fn toggle_coord(&mut self, coord: (u8, u8)) {
-        let x = 1 << (ROWS * COLS - 1);
-        self.board ^= x >> (coord.0 * COLS + coord.1);
+    pub fn index(row: u8, col: u8) -> u8 {
+        6 * row + col
     }
 
-    pub fn coord(&self, coord: (u8, u8)) -> bool {
+    pub fn toggle_coord(&mut self, row: u8, col: u8) {
         let x = 1 << (ROWS * COLS - 1);
-        (self.board & (x >> (coord.0 * COLS + coord.1))) != 0
+        self.board ^= x >> (row * COLS + col);
+    }
+
+    pub fn coord(&self, row: u8, col: u8) -> bool {
+        let x = 1 << (ROWS * COLS - 1);
+        (self.board & (x >> (row * COLS + col))) != 0
+    }
+
+    pub fn in_figure(&self, action: u8, index: u8) -> bool {
+        (self.figure() >> action) & ((1 << (ROWS * COLS - 1)) >> index) != 0
     }
 
     pub fn figure(&self) -> u32 {
@@ -56,7 +64,7 @@ impl Jigsaw {
             return true;
         }
 
-        let x_offset: u8 = action % COLS;
+        let x_offset = action % COLS;
 
         if (self.board & (self.figure() >> action)) != 0 {
             return false;
@@ -66,17 +74,12 @@ impl Jigsaw {
             return false;
         }
 
-        let column_mask: u8 = !(0xFF << COLS);
+        let column_mask = !(0xFF << COLS);
 
-        for i in 0..ROWS {
-            let figure_row = (self.figure() >> (COLS * i)) as u8 & column_mask;
-
-            if ((figure_row >> x_offset) << x_offset) != figure_row {
-                return false;
-            }
-        }
-
-        return true;
+        (0..ROWS).all(|row| {
+            let figure_row = (self.figure() >> (COLS * row)) as u8 & column_mask;
+            ((figure_row >> x_offset) << x_offset) == figure_row
+        })
     }
 }
 
@@ -87,8 +90,8 @@ impl fmt::Debug for Jigsaw {
         let quantity_str = format!("========={}=========\n", self.quantity);
         string.push_str(&quantity_str);
 
-        let mut board_mask: u32 = 1 << (ROWS * COLS - 1);
-        let mut figure_mask: u32 = 1 << (ROWS * COLS - 1);
+        let mut board_mask = 1 << (ROWS * COLS - 1);
+        let mut figure_mask = 1 << (ROWS * COLS - 1);
 
         for i in 0..ROWS {
             for j in 0..COLS {

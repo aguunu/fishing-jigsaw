@@ -44,22 +44,10 @@ impl Default for Config {
     }
 }
 
-pub fn compute<T, F>(state: &T, config: Config, callback: F)
-where
-    T: Environment + Clone,
-    F: FnMut(Stats<T>),
-{
-    let mut tree = Tree::new(state, config);
-    tree.compute(callback);
-}
-
 impl<T: Environment + Clone> Tree<T> {
-    fn compute<F>(&mut self, mut callback: F)
-    where
-        F: FnMut(Stats<T>),
-    {
-        for iter in 0..self.config.max_iters {
-            self.try_callback_trigger::<T>(iter, &mut callback);
+    pub fn compute<F: FnMut(Stats<T>)>(&mut self, mut callback: F) {
+        for iter in 1..=self.config.max_iters {
+            self.try_callback_trigger(iter, &mut callback);
 
             let mut state = self.root_state.clone();
 
@@ -81,10 +69,10 @@ impl<T: Environment + Clone> Tree<T> {
         }
     }
 
-    pub fn new(state: &T, config: Config) -> Self {
+    pub fn new(state: T, config: Config) -> Self {
         let mut result = Tree {
             nodes: Vec::with_capacity(config.max_iters as usize),
-            root_state: state.clone(),
+            root_state: state,
             root_index: 0,
             config,
         };
@@ -95,21 +83,19 @@ impl<T: Environment + Clone> Tree<T> {
         result
     }
 
-    fn try_callback_trigger<F>(&self, current_iter: u32, callback: &mut dyn FnMut(Stats<T>)) {
-        if current_iter == 0 || current_iter % self.config.callback_interval != 0 {
-            return;
+    fn try_callback_trigger(&self, iter: u32, callback: &mut dyn FnMut(Stats<T>)) {
+        if iter % self.config.callback_interval == 0 || iter == self.config.max_iters {
+            let actions: Vec<(T::Action, u32)> = self.nodes[self.root_index]
+                .children
+                .iter()
+                .map(|(action, index)| (*action, self.nodes[*index].visits))
+                .collect();
+
+            callback(Stats {
+                iters: iter,
+                actions,
+            });
         }
-
-        let actions: Vec<(T::Action, u32)> = self.nodes[self.root_index]
-            .children
-            .iter()
-            .map(|(action, index)| (*action, self.nodes[*index].visits))
-            .collect();
-
-        callback(Stats {
-            iters: current_iter,
-            actions,
-        });
     }
 
     fn create_node(&mut self) -> Index {
@@ -196,15 +182,11 @@ impl<T: Environment + Clone> Tree<T> {
     }
 
     fn backpropagate(&mut self, wins: i32, visits: u32, index: Index) {
-        let mut current_index = index;
+        let mut cursor = Some(index);
 
-        loop {
-            self.nodes[current_index].update(wins, visits);
-
-            match self.nodes[current_index].parent {
-                None => break,
-                Some(parent) => current_index = parent,
-            }
+        while let Some(index) = cursor {
+            self.nodes[index].update(wins, visits);
+            cursor = self.nodes[index].parent;
         }
     }
 }
