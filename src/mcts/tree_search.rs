@@ -37,7 +37,7 @@ impl Default for Config {
     fn default() -> Self {
         Self {
             max_iters: 300_000,
-            max_depth: 16,
+            max_depth: 10,
             c: f32::sqrt(2.0),
             callback_interval: 1000,
         }
@@ -89,7 +89,8 @@ impl<T: Environment + Clone> Tree<T> {
             config,
         };
 
-        result.create_node(); // create root node
+        // Create root node.
+        result.create_node();
 
         result
     }
@@ -120,7 +121,7 @@ impl<T: Environment + Clone> Tree<T> {
     }
 
     fn select(&mut self, index: Index, c: f32, state: &mut T, state_depth: &mut u32) -> Index {
-        /* Check if states is terminal */
+        // Check if state is terminal.
         if state.has_finished() {
             return index;
         }
@@ -133,12 +134,12 @@ impl<T: Environment + Clone> Tree<T> {
             .iter()
             .all(|action| node.children.contains_key(action));
 
-        /* Check if state is not fully expanded */
+        // Check if state is not fully expanded.
         if !fully_expanded {
             return index;
         }
 
-        /* Select next state (unknown) by taking best action */
+        // Select next state (unknown) by taking best action.
         let &action = legal_actions
             .iter()
             .max_by(|&x, &y| {
@@ -150,7 +151,7 @@ impl<T: Environment + Clone> Tree<T> {
             })
             .unwrap();
 
-        /* Perform selected action */
+        // Perform selected action.
         state.perform_action(action);
 
         *state_depth += 1;
@@ -163,18 +164,14 @@ impl<T: Environment + Clone> Tree<T> {
 
         let action = legal_actions
             .iter()
-            .find(|&action| !self.nodes[index].children.contains_key(action));
+            .find(|&action| !self.nodes[index].children.contains_key(action))
+            .expect("Action should not be None");
 
-        match action {
-            Some(action) => {
-                let new_index = self.create_node();
-                self.nodes[new_index].set_parent(index);
-                self.nodes[index].set_child(*action, new_index);
+        let new_index = self.create_node();
+        self.nodes[new_index].set_parent(index);
+        self.nodes[index].set_child(*action, new_index);
 
-                return new_index;
-            }
-            None => panic!(),
-        }
+        return new_index;
     }
 
     fn simulation(&mut self, mut state: T, max_depth: u32) -> i32 {
@@ -186,9 +183,10 @@ impl<T: Environment + Clone> Tree<T> {
 
         while !state.has_finished() && max_depth >= depth {
             let legal_actions = state.legal_actions();
-            let action_index: u8 = rng.gen::<u8>() % u8::try_from(legal_actions.len()).unwrap();
-            let action = legal_actions.get(action_index as usize).unwrap();
-            state.perform_action(*action);
+
+            let random_index = rng.gen_range(0..legal_actions.len());
+            let action = legal_actions[random_index];
+            state.perform_action(action);
 
             depth += 1;
         }

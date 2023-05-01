@@ -51,13 +51,11 @@ impl App {
             ui.set_enabled(!self.algorithm_is_running());
 
             if ui.button("New Game").clicked() {
-                /* Reset current game */
                 self.reset_stats();
                 self.game = Jigsaw::new();
             }
 
             if ui.button("Perform Action").clicked() {
-                /* Perform selected optimal action */
                 let action = self.best_action();
                 if let Some(action) = action {
                     self.game.perform_action(action);
@@ -66,7 +64,7 @@ impl App {
             }
 
             if ui.button("Compute").clicked() {
-                /* Perform tree search in a new thread */
+                // Perform tree search in a new thread.
                 self.reset_stats();
 
                 let state = self.game.clone();
@@ -203,7 +201,6 @@ impl App {
             .show(ui, |ui| {
                 ui.set_enabled(!self.algorithm_is_running());
 
-                // exploration rate
                 ui.label("Exploration Rate")
                     .on_hover_text("Algorithm exploration rate.");
                 ui.add(egui::Slider::new(
@@ -212,7 +209,6 @@ impl App {
                 ));
                 ui.end_row();
 
-                // iterations
                 ui.label("Iterations")
                     .on_hover_text("Algorithm iterations.");
                 ui.add(egui::Slider::new(
@@ -221,7 +217,6 @@ impl App {
                 ));
                 ui.end_row();
 
-                // callback update interval
                 ui.label("Update Interval").on_hover_text(format!(
                     "Update stats every {} iterations.",
                     self.algorithm_config.callback_interval
@@ -232,7 +227,6 @@ impl App {
                 ));
                 ui.end_row();
 
-                // max depth
                 ui.label("Max Depth")
                     .on_hover_text("Steps ahead computed by the algorithm.");
                 ui.add(egui::Slider::new(
@@ -288,7 +282,7 @@ impl Default for App {
 impl eframe::App for App {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         if self.algorithm_is_running() {
-            // request repaint if algorithm is running
+            // Request repaint if algorithm is running.
             ctx.request_repaint();
         }
 

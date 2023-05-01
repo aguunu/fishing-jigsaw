@@ -1,4 +1,5 @@
 use crate::mcts::Environment;
+use rand::Rng;
 use std::fmt;
 
 const ROWS: u8 = 4;
@@ -23,8 +24,8 @@ pub struct Jigsaw {
 }
 
 fn random_figure() -> u8 {
-    use rand::Rng;
-    rand::thread_rng().gen_range(0..ALL_FIGURES.len() as u8)
+    let mut rng = rand::thread_rng();
+    rng.gen_range(0..ALL_FIGURES.len() as u8)
 }
 
 impl Jigsaw {
