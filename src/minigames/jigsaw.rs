@@ -29,14 +29,6 @@ fn random_figure() -> u8 {
 }
 
 impl Jigsaw {
-    pub fn new() -> Self {
-        Self {
-            board: 0,
-            figure_index: random_figure(),
-            quantity: 0,
-        }
-    }
-
     pub fn index(row: u8, col: u8) -> u8 {
         6 * row + col
     }
@@ -151,6 +143,16 @@ impl Environment for Jigsaw {
             1
         } else {
             0
+        }
+    }
+}
+
+impl Default for Jigsaw {
+    fn default() -> Self {
+        Self {
+            board: 0,
+            figure_index: random_figure(),
+            quantity: 0,
         }
     }
 }

@@ -1,96 +1,12 @@
-use std::thread::JoinHandle;
-
 use crate::{
-    mcts::{Config, Environment, Tree},
+    manager::Manager,
     minigames::{Jigsaw, ALL_FIGURES},
-    stats_manager::StatsManager,
     CustomWindow,
 };
 
-pub struct JigsawManager {
-    pub state: Jigsaw,
-    pub stats_manager: StatsManager<Jigsaw>,
-    pub handler: Option<JoinHandle<()>>,
-    pub config: Option<Config>,
-}
+pub type JigsawManager = Manager<Jigsaw>;
 
-impl Default for JigsawManager {
-    fn default() -> Self {
-        Self {
-            state: Jigsaw::new(),
-            stats_manager: StatsManager::default(),
-            handler: None,
-            config: None,
-        }
-    }
-}
-
-impl JigsawManager {
-    pub fn optimal_action(&self) -> Option<u8> {
-        let local_stats = self.stats_manager.current_stats.clone();
-        let mut current_stats = local_stats.lock().unwrap();
-        current_stats.as_mut().and_then(|stats| stats.best_action())
-    }
-
-    pub fn reset(&mut self) {
-        self.stats_manager.reset();
-        self.state = Jigsaw::new();
-    }
-
-    pub fn is_computing(&self) -> bool {
-        self.handler
-            .as_ref()
-            .map_or(false, |handler| !handler.is_finished())
-    }
-
-    pub fn progress(&self) -> f32 {
-        let local_stats = &self.stats_manager.current_stats.clone();
-        let stats = local_stats.lock().unwrap();
-
-        if let (Some(config), Some(stats)) = (self.config.as_ref(), stats.as_ref()) {
-            stats.iters as f32 / config.max_iters as f32
-        } else {
-            0.0
-        }
-    }
-
-    pub fn compute(&mut self, config: &Config) {
-        self.config = Some(config.clone());
-
-        self.stats_manager.reset();
-
-        let state = self.state.clone();
-        let config = config.clone();
-
-        let local_stats = self.stats_manager.current_stats.clone();
-        let local_history = self.stats_manager.actions_history.clone();
-
-        let handler = std::thread::spawn(move || {
-            Tree::new(state, config).compute(|stats| {
-                let mut history = local_history.lock().unwrap();
-
-                stats.actions.iter().for_each(|&(action, visits)| {
-                    history
-                        .entry(action)
-                        .or_default()
-                        .push([stats.iters.into(), visits.into()])
-                });
-
-                let mut current_stats = local_stats.lock().unwrap();
-                *current_stats = Some(stats);
-            });
-        });
-
-        self.handler = Some(handler);
-    }
-
-    pub fn perform(&mut self, action: u8) {
-        self.state.perform_action(action);
-        self.stats_manager.reset();
-    }
-}
-
-impl CustomWindow for JigsawManager {
+impl CustomWindow for Manager<Jigsaw> {
     fn name(&self) -> &'static str {
         "🎣 Jigsaw"
     }
