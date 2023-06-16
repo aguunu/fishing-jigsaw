@@ -125,7 +125,7 @@ impl eframe::App for App {
                         use egui::special_emojis::GITHUB;
                         ui.hyperlink_to(
                             format!("{} GitHub", GITHUB),
-                            "https://github.com/agustinemk/fishing-jigsaw",
+                            "https://github.com/aguunu/fishing-jigsaw",
                         );
 
                         egui::widgets::global_dark_light_mode_buttons(ui);

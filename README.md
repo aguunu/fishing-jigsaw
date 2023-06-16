@@ -48,4 +48,4 @@ If you have a suggestion that would make this better, please fork the repo and c
 Distributed under the MIT License. See [`LICENSE`](LICENSE) for more information.
 
 ## Contact
-Discord - `Agus#1882` 💖
+Discord - `@aguunu` 💖
