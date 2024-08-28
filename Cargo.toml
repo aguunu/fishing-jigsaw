@@ -6,9 +6,13 @@ license-file = "LICENSE"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-rand = "0.8.5"
-egui = "0.21.0"
-eframe = { version = "0.21.0", default-features = false, features = [
+rand = "0.8.0"
+egui = "0.28.0"
+eframe = { version = "0.28.0", default-features = false, features = [
     "default_fonts", # Embed the default egui fonts.
     "glow",          # Use the glow rendering backend. Alternative: "wgpu".
 ] }
+lazy_static = "1.5.0"
+itertools = "0.13.0"
+egui_plot = "0.28.0"
+rayon = "1.10.0"
