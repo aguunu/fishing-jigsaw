@@ -32,8 +32,7 @@ Fishing Jigsaw is a non-deterministic problem which is *difficult* to compute it
 - Every round you will be able to put the current figure in a valid position or skip it.
 
 ## Approach
-[Monte Carlo tree search]("https://en.wikipedia.org/wiki/Hobbit#Lifestyle") (MCTS) is a probabilistic and heuristic search algorithm for some kinds of decision processes, which is indeed really effective for this problem.\
-This algorithm expands the tree based on random samplings of the search space. Its application is based on *rollouts*. In each rollout, the game is played until a *terminal state* by selecting random actions. The final score of each rollout is then used to weight the nodes in the tree so that better nodes are more likely to be chosen in future rollouts.
+The approach used to solve the the game tree is a breadth-first search (BFS)-like algorithm that exhaustively explores all possible board configurations and figure placements to compute the optimal actions for solving the puzzle.
 
 ## Contributing
 If you have a suggestion that would make this better, please fork the repo and create a pull request. You can also simply open an issue with the tag "enhancement". Don't forget to give the project a star! Thanks!
